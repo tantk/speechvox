@@ -43,6 +43,38 @@ Downloaded via the built-in model manager. All models are Voxtral 4B Realtime in
 
 Models are hosted on [Hugging Face](https://huggingface.co/tantk/Voxtral-4B-Realtime-VQF).
 
+## Accuracy (WER)
+
+Voxtral 4B Realtime matches Whisper large-v3 at 480ms delay, and surpasses it at 960ms+. From the [paper](https://arxiv.org/abs/2602.11298):
+
+### Macro-Average WER (%)
+
+| Model | Delay | En-Short | En-Long | FLEURS | MCV |
+|-------|-------|----------|---------|--------|-----|
+| Whisper large-v3 | offline | 8.39 | 7.97 | 8.23 | 14.25 |
+| Voxtral Mini V2 | offline | 7.27 | 7.11 | 5.90 | 8.07 |
+| **Voxtral Realtime** | **480ms** | **8.47** | **7.73** | **8.72** | **15.24** |
+| **Voxtral Realtime** | **960ms** | **7.94** | **7.13** | **7.70** | **11.99** |
+| **Voxtral Realtime** | **2400ms** | **7.72** | **6.93** | **6.73** | **10.47** |
+
+### Per-Language WER on FLEURS (480ms delay)
+
+| Language | WER |
+|----------|-----|
+| English | 4.90% |
+| Spanish | 3.31% |
+| French | 6.42% |
+| German | 6.19% |
+| Italian | 5.65% |
+| Portuguese | 5.38% |
+| Dutch | 8.38% |
+| Russian | 5.43% |
+| Arabic | 14.38% |
+| Hindi | 12.91% |
+| Korean | 11.38% |
+| Japanese | 9.59% CER |
+| Chinese | 10.45% CER |
+
 ## Configuration
 
 Settings are stored in `speechvox.json` next to the executable.
