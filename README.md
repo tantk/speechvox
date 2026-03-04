@@ -45,42 +45,43 @@ Models are hosted on [Hugging Face](https://huggingface.co/tantk/Voxtral-4B-Real
 
 ## Accuracy (WER)
 
-Benchmarked on [Google FLEURS](https://huggingface.co/datasets/google/fleurs) test split: 517 samples, 13 languages, 101.5 minutes of audio. RTX 4070 Ti, CUDA 13.0. Voxtral audio normalized to -23 dBFS.
+Per-language error rates (%) on [Google FLEURS](https://huggingface.co/datasets/google/fleurs) test split. Lower is better.
 
-### Per-Language Results
+- **Paper (BF16)**: From the [Voxtral Realtime paper](https://arxiv.org/abs/2602.11298), full-precision model at 480ms delay
+- **Our Q4_K**: Our benchmark of the Q4_K quantized model — 517 samples, 101.5 min audio, RTX 4070 Ti, normalized to -23 dBFS
+- **Whisper**: Whisper large-v3 (float16) via faster-whisper, same test set
 
-| Language | Samples | Metric | Whisper large-v3 | Voxtral 4B Q4_K |
-|----------|---------|--------|------------------|-----------------|
-| Arabic | 27 | WER | 9.0 | **7.9** |
-| Chinese | 56 | CER | **8.2** | 9.6 |
-| Dutch | 32 | WER | **5.0** | 5.3 |
-| English | 60 | WER | **4.7** | 5.4 |
-| French | 56 | WER | **6.4** | 7.6 |
-| German | 42 | WER | **3.6** | 4.8 |
-| Hindi | 25 | WER | 17.3 | **15.0** |
-| Italian | 23 | WER | 3.3 | **3.1** |
-| Japanese | 46 | CER | **4.0** | 8.5 |
-| Korean | 26 | WER | **8.2** | 15.3 |
-| Portuguese | 46 | WER | **3.8** | 5.4 |
-| Russian | 26 | WER | **5.8** | **5.8** |
-| Spanish | 52 | WER | 3.1 | **2.8** |
-| **Overall** | **415** | **WER** | **5.8** | **6.4** |
-| **Overall** | **102** | **CER** | **6.3** | **9.0** |
+| Language | Metric | Paper (BF16) | Our Q4_K | Whisper large-v3 |
+|----------|--------|-------------|----------|------------------|
+| English | WER | 4.9 | 5.4 | **4.7** |
+| Spanish | WER | 3.3 | **2.8** | 3.1 |
+| French | WER | 6.4 | 7.6 | **6.4** |
+| German | WER | 6.2 | 4.8 | **3.6** |
+| Italian | WER | 5.7 | **3.1** | 3.3 |
+| Portuguese | WER | 5.4 | 5.4 | **3.8** |
+| Dutch | WER | 8.4 | 5.3 | **5.0** |
+| Russian | WER | 5.4 | **5.8** | **5.8** |
+| Arabic | WER | 14.4 | **7.9** | 9.0 |
+| Hindi | WER | 12.9 | **15.0** | 17.3 |
+| Korean | WER | 11.4 | 15.3 | **8.2** |
+| Japanese | CER | 9.6 | 8.5 | **4.0** |
+| Chinese | CER | 10.5 | 9.6 | **8.2** |
 
-**Bold** = best in row. Whisper wins 8 languages, Voxtral wins 4 (Arabic, Hindi, Italian, Spanish), tie on Russian.
+**Bold** = best between Our Q4_K and Whisper. Paper numbers are reference only (different test conditions).
 
-### Speed
-
-| Metric | Whisper large-v3 | Voxtral 4B Q4_K |
-|--------|------------------|-----------------|
+| | Whisper large-v3 | Voxtral 4B Q4_K |
+|--|------------------|-----------------|
+| **Overall WER** (11 langs) | **5.8** | 6.4 |
+| **Overall CER** (JA+ZH) | **6.3** | 9.0 |
 | Throughput | 12.1x real-time | 3.9x real-time |
 | Model load | 4.5s | 1.2s |
 | VRAM | ~3.5 GB | ~7 GB |
 | Params | 1.55B (float16) | 4.4B (Q4_K) |
+| Streaming | No (offline only) | Yes (sub-second latency) |
 
-Whisper is 3x faster in batch mode, but Voxtral offers native streaming with sub-second first-token latency. Voxtral is volume-sensitive — input normalization is essential (SpeechVox handles this automatically).
+Whisper is more accurate overall and 3x faster in batch mode, but Voxtral offers native streaming with sub-second first-token latency that Whisper cannot match. Voxtral is volume-sensitive — input normalization is essential (SpeechVox handles this automatically).
 
-Full methodology: [`docs/`](docs/)
+Full methodology and result files: [`docs/`](docs/)
 
 ## Configuration
 
