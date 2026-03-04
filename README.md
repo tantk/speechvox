@@ -51,21 +51,21 @@ Per-language error rates (%) on [Google FLEURS](https://huggingface.co/datasets/
 - **Our Q4_K**: Our benchmark of the Q4_K quantized model — 517 samples, 101.5 min audio, RTX 4070 Ti, normalized to -23 dBFS
 - **Whisper**: Whisper large-v3 (float16) via faster-whisper, same test set
 
-| Language | Metric | Paper (BF16) | Our Q4_K | Whisper large-v3 |
-|----------|--------|-------------|----------|------------------|
-| English | WER | 4.9 | 5.4 | **4.7** |
-| Spanish | WER | 3.3 | **2.8** | 3.1 |
-| French | WER | 6.4 | 7.6 | **6.4** |
-| German | WER | 6.2 | 4.8 | **3.6** |
-| Italian | WER | 5.7 | **3.1** | 3.3 |
-| Portuguese | WER | 5.4 | 5.4 | **3.8** |
-| Dutch | WER | 8.4 | 5.3 | **5.0** |
-| Russian | WER | 5.4 | **5.8** | **5.8** |
-| Arabic | WER | 14.4 | **7.9** | 9.0 |
-| Hindi | WER | 12.9 | **15.0** | 17.3 |
-| Korean | WER | 11.4 | 15.3 | **8.2** |
-| Japanese | CER | 9.6 | 8.5 | **4.0** |
-| Chinese | CER | 10.5 | 9.6 | **8.2** |
+| Language | Samples | Metric | Paper (BF16) | Our Q4_K | Whisper large-v3 |
+|----------|---------|--------|-------------|----------|------------------|
+| English | 60 (9.5 min) | WER | 4.9 | 5.4 | **4.7** |
+| Spanish | 52 (10.5 min) | WER | 3.3 | **2.8** | 3.1 |
+| French | 56 (10.2 min) | WER | 6.4 | 7.6 | **6.4** |
+| German | 42 (10.1 min) | WER | 6.2 | 4.8 | **3.6** |
+| Italian | 23 (5.2 min) | WER | 5.7 | **3.1** | 3.3 |
+| Portuguese | 46 (10.1 min) | WER | 5.4 | 5.4 | **3.8** |
+| Dutch | 32 (5.1 min) | WER | 8.4 | 5.3 | **5.0** |
+| Russian | 26 (5.1 min) | WER | 5.4 | **5.8** | **5.8** |
+| Arabic | 27 (5.1 min) | WER | 14.4 | **7.9** | 9.0 |
+| Hindi | 25 (5.3 min) | WER | 12.9 | **15.0** | 17.3 |
+| Korean | 26 (5.2 min) | WER | 11.4 | 15.3 | **8.2** |
+| Japanese | 46 (10.1 min) | CER | 9.6 | 8.5 | **4.0** |
+| Chinese | 56 (10.1 min) | CER | 10.5 | 9.6 | **8.2** |
 
 **Bold** = best between Our Q4_K and Whisper. Paper numbers are reference only (different test conditions).
 
