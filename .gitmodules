@@ -1,0 +1,3 @@
+[submodule "vendor/voxtral"]
+	path = vendor/voxtral
+	url = https://github.com/tantk/voxtral.c.git

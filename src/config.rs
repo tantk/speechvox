@@ -1,28 +1,41 @@
+use crate::models;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tracing::{info, warn};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TranscriptionMode {
+    PushToTalk,
+    ContinuousStreaming,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-    pub model_path: String,
-    pub mmproj_path: String,
+    pub model_dir: String,
     pub hotkey: String,
-    pub use_gpu: bool,
     pub overlay_x: Option<i32>,
     pub overlay_y: Option<i32>,
+    #[serde(default = "default_mode")]
+    pub mode: TranscriptionMode,
+    #[serde(default)]
+    pub active_model: Option<String>,
+}
+
+fn default_mode() -> TranscriptionMode {
+    TranscriptionMode::PushToTalk
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            model_path: "C:\\dev\\mistralhx\\Voxtral-Mini-4B-Realtime-2602-GGUF_Q4_K_M.gguf"
-                .to_string(),
-            mmproj_path: "C:\\dev\\mistralhx\\voxtral-realtime-4b-mmproj-f16.gguf".to_string(),
+            model_dir: String::new(),
             hotkey: "F9".to_string(),
-            use_gpu: true,
             overlay_x: None,
             overlay_y: None,
+            mode: default_mode(),
+            active_model: None,
         }
     }
 }
@@ -59,12 +72,26 @@ impl Config {
         exe_dir.join("speechvox.json")
     }
 
-    pub fn validate(&self) -> Result<()> {
-        if !PathBuf::from(&self.model_path).exists() {
-            warn!("Model file not found: {}", self.model_path);
+    /// Resolve the effective model directory.
+    /// 1. active_model + .complete marker → models/{id}/
+    /// 2. model_dir non-empty + exists → legacy path
+    /// 3. None → no model available
+    pub fn effective_model_dir(&self) -> Option<PathBuf> {
+        if let Some(ref id) = self.active_model {
+            if models::is_model_complete(id) {
+                return Some(models::model_dir(id));
+            }
         }
-        if !PathBuf::from(&self.mmproj_path).exists() {
-            warn!("MMProj file not found: {}", self.mmproj_path);
+        let legacy = PathBuf::from(&self.model_dir);
+        if !self.model_dir.is_empty() && legacy.exists() {
+            return Some(legacy);
+        }
+        None
+    }
+
+    pub fn validate(&self) -> Result<()> {
+        if self.effective_model_dir().is_none() {
+            warn!("No valid model directory configured");
         }
         Ok(())
     }

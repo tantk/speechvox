@@ -1,1 +1,5 @@
 /target
+/archive
+*.wav
+*.m4a
+*.log

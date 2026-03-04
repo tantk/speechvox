@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "hf_repo": "tantk/Voxtral-4B-Realtime-VQF",
+  "models": [
+    {
+      "id": "voxtral-4b-q4k",
+      "name": "Voxtral 4B (Q4_K)",
+      "description": "Best quality-to-size ratio. Smallest 4-bit variant.",
+      "quantization": "Q4_K",
+      "vram_mb": 4000,
+      "recommended": true,
+      "files": [
+        { "name": "consolidated.vqf", "hf_path": "consolidated-q4_k.vqf", "size_bytes": 3184916480 },
+        { "name": "tekken.json", "hf_path": "tekken.json", "size_bytes": 14910348 }
+      ]
+    },
+    {
+      "id": "voxtral-4b-q6k",
+      "name": "Voxtral 4B (Q6_K)",
+      "description": "Near-lossless quality. Sweet spot for 8 GB GPUs.",
+      "quantization": "Q6_K",
+      "vram_mb": 5000,
+      "recommended": false,
+      "files": [
+        { "name": "consolidated.vqf", "hf_path": "consolidated-q6_k.vqf", "size_bytes": 4057921536 },
+        { "name": "tekken.json", "hf_path": "tekken.json", "size_bytes": 14910348 }
+      ]
+    },
+    {
+      "id": "voxtral-4b-q8",
+      "name": "Voxtral 4B (Q8_0)",
+      "description": "Reference quality. Needs 12+ GB VRAM.",
+      "quantization": "Q8_0",
+      "vram_mb": 7000,
+      "recommended": false,
+      "files": [
+        { "name": "consolidated.vqf", "hf_path": "consolidated-q8_0.vqf", "size_bytes": 5367429120 },
+        { "name": "tekken.json", "hf_path": "tekken.json", "size_bytes": 14910348 }
+      ]
+    },
+    {
+      "id": "voxtral-4b-q4",
+      "name": "Voxtral 4B (Q4_0)",
+      "description": "Simplest 4-bit format, fastest dequant. Slightly lower quality than Q4_K.",
+      "quantization": "Q4_0",
+      "vram_mb": 4000,
+      "recommended": false,
+      "files": [
+        { "name": "consolidated.vqf", "hf_path": "consolidated-q4_0.vqf", "size_bytes": 3371988992 },
+        { "name": "tekken.json", "hf_path": "tekken.json", "size_bytes": 14910348 }
+      ]
+    }
+  ]
+}

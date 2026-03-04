@@ -209,6 +209,127 @@ impl AudioCapture {
 
         audio
     }
+
+    /// Start continuous capture. Returns a receiver of ~100ms audio chunks (1600 samples at 16kHz).
+    pub fn start_continuous(&mut self) -> Result<crossbeam_channel::Receiver<Vec<f32>>> {
+        if self.recording.load(Ordering::SeqCst) {
+            return Err(anyhow::anyhow!("Already recording"));
+        }
+
+        self.recording.store(true, Ordering::SeqCst);
+        self.rms.store(0f32.to_bits(), Ordering::Relaxed);
+
+        let (tx, rx) = crossbeam_channel::bounded(32);
+        let recording = Arc::clone(&self.recording);
+        let rms = Arc::clone(&self.rms);
+        let source_sample_rate = self.config.sample_rate.0;
+        let channels = self.config.channels as usize;
+
+        debug!(
+            "Starting continuous audio stream: {}Hz, {} channels",
+            source_sample_rate, channels
+        );
+
+        let err_fn = |err| error!("Audio stream error: {}", err);
+
+        // Chunk size: ~100ms at 16kHz = 1600 samples
+        const CHUNK_SIZE: usize = 1600;
+
+        let stream = match self.device.default_input_config()?.sample_format() {
+            SampleFormat::F32 => {
+                let acc = Arc::new(Mutex::new(Vec::with_capacity(CHUNK_SIZE * 2)));
+                let acc2 = Arc::clone(&acc);
+                let tx2 = tx.clone();
+                self.device.build_input_stream(
+                    &self.config,
+                    move |data: &[f32], _| {
+                        if !recording.load(Ordering::SeqCst) { return; }
+                        let mono_data = convert_to_mono(data, channels);
+                        let resampled = resample(&mono_data, source_sample_rate, TARGET_SAMPLE_RATE);
+                        if !resampled.is_empty() {
+                            let rms_val = (resampled.iter().map(|x| x * x).sum::<f32>()
+                                / resampled.len() as f32).sqrt();
+                            rms.store(rms_val.to_bits(), Ordering::Relaxed);
+                        }
+                        let mut buf = acc2.lock();
+                        buf.extend(resampled);
+                        while buf.len() >= CHUNK_SIZE {
+                            let chunk: Vec<f32> = buf.drain(..CHUNK_SIZE).collect();
+                            if tx2.send(chunk).is_err() { return; }
+                        }
+                    },
+                    err_fn,
+                    None,
+                )?
+            }
+            SampleFormat::I16 => {
+                let acc = Arc::new(Mutex::new(Vec::with_capacity(CHUNK_SIZE * 2)));
+                let acc2 = Arc::clone(&acc);
+                let tx2 = tx.clone();
+                self.device.build_input_stream(
+                    &self.config,
+                    move |data: &[i16], _| {
+                        if !recording.load(Ordering::SeqCst) { return; }
+                        let float_data: Vec<f32> = data.iter().map(|&s| s as f32 / i16::MAX as f32).collect();
+                        let mono_data = convert_to_mono(&float_data, channels);
+                        let resampled = resample(&mono_data, source_sample_rate, TARGET_SAMPLE_RATE);
+                        if !resampled.is_empty() {
+                            let rms_val = (resampled.iter().map(|x| x * x).sum::<f32>()
+                                / resampled.len() as f32).sqrt();
+                            rms.store(rms_val.to_bits(), Ordering::Relaxed);
+                        }
+                        let mut buf = acc2.lock();
+                        buf.extend(resampled);
+                        while buf.len() >= CHUNK_SIZE {
+                            let chunk: Vec<f32> = buf.drain(..CHUNK_SIZE).collect();
+                            if tx2.send(chunk).is_err() { return; }
+                        }
+                    },
+                    err_fn,
+                    None,
+                )?
+            }
+            SampleFormat::U16 => {
+                let acc = Arc::new(Mutex::new(Vec::with_capacity(CHUNK_SIZE * 2)));
+                let acc2 = Arc::clone(&acc);
+                let tx2 = tx.clone();
+                self.device.build_input_stream(
+                    &self.config,
+                    move |data: &[u16], _| {
+                        if !recording.load(Ordering::SeqCst) { return; }
+                        let float_data: Vec<f32> = data.iter().map(|&s| (s as f32 / u16::MAX as f32) * 2.0 - 1.0).collect();
+                        let mono_data = convert_to_mono(&float_data, channels);
+                        let resampled = resample(&mono_data, source_sample_rate, TARGET_SAMPLE_RATE);
+                        if !resampled.is_empty() {
+                            let rms_val = (resampled.iter().map(|x| x * x).sum::<f32>()
+                                / resampled.len() as f32).sqrt();
+                            rms.store(rms_val.to_bits(), Ordering::Relaxed);
+                        }
+                        let mut buf = acc2.lock();
+                        buf.extend(resampled);
+                        while buf.len() >= CHUNK_SIZE {
+                            let chunk: Vec<f32> = buf.drain(..CHUNK_SIZE).collect();
+                            if tx2.send(chunk).is_err() { return; }
+                        }
+                    },
+                    err_fn,
+                    None,
+                )?
+            }
+            _ => return Err(anyhow::anyhow!("Unsupported sample format")),
+        };
+
+        stream.play()?;
+        self.stream = Some(stream);
+
+        Ok(rx)
+    }
+
+    /// Stop continuous capture.
+    pub fn stop_continuous(&mut self) {
+        self.recording.store(false, Ordering::SeqCst);
+        self.stream = None;
+    }
 }
 
 fn convert_to_mono(data: &[f32], channels: usize) -> Vec<f32> {
