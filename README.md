@@ -67,19 +67,17 @@ Per-language error rates (%) on [Google FLEURS](https://huggingface.co/datasets/
 | Japanese | 46 (10.1 min) | CER | 9.6 | 8.5 | **4.0** |
 | Chinese | 56 (10.1 min) | CER | 10.5 | 9.6 | **8.2** |
 
-**Bold** = best between Our Q4_K and Whisper. Paper numbers are reference only (different test conditions).
+Paper numbers are reference only (different test conditions).
 
 | | Whisper large-v3 | Voxtral 4B Q4_K |
 |--|------------------|-----------------|
-| **Overall WER** (11 langs) | **5.8** | 6.4 |
-| **Overall CER** (JA+ZH) | **6.3** | 9.0 |
+| **Overall WER** (11 langs) | 5.8 | 6.4 |
+| **Overall CER** (JA+ZH) | 6.3 | 9.0 |
 | Throughput | 12.1x real-time | 3.9x real-time |
 | Model load | 4.5s | 1.2s |
 | VRAM | ~3.5 GB | ~7 GB |
 | Params | 1.55B (float16) | 4.4B (Q4_K) |
 | Streaming | No (offline only) | Yes (sub-second latency) |
-
-Whisper is more accurate overall and 3x faster in batch mode, but Voxtral offers native streaming with sub-second first-token latency that Whisper cannot match. Voxtral is volume-sensitive — input normalization is essential (SpeechVox handles this automatically).
 
 Full methodology and result files: [`docs/`](docs/)
 
