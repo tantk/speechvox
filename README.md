@@ -9,7 +9,7 @@ Press a hotkey, speak, release — your words are typed into any application.
 SpeechVox uses [Voxtral 4B Realtime](https://huggingface.co/mistralai/Voxtral-4B-Realtime) running on your NVIDIA GPU via a custom C/CUDA inference engine ([voxtral.c](https://github.com/antirez/voxtral.c)). The model is statically linked into a single executable.
 
 - **Push-to-Talk**: Hold hotkey to record, release to transcribe and type
-- **Continuous Streaming**: Toggle hotkey to start/stop live transcription
+- **Continuous Streaming**: Toggle hotkey to start/stop — text appears as you speak with sub-second latency, leveraging Voxtral's real-time streaming architecture
 - **~7 GB VRAM** with Q4_K quantization, encoder warmup at load time
 
 ## Requirements
